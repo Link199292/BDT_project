@@ -1,5 +1,4 @@
 import json
-import html
 
 european_countries = {}
 
@@ -16,11 +15,19 @@ with open('cities.json') as r:
             city_lon = city['longitude']
 
             to_add = {'city': city_name,
-                      'latitude': city_lat,
-                      'longitude': city_lon}
+                      'latitude': round(float(city_lat), 1),
+                      'longitude': round(float(city_lon), 1)}
 
             european_countries[curr_country].append(to_add)
 
+to_del = []
+
+for i in european_countries:
+    if not european_countries[i]:
+        to_del.append(i)
+
+for i in to_del:
+    del european_countries[i]
+
 with open('european_countries.json', 'w') as w:
     json.dump(european_countries, w, indent=4)
-
