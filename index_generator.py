@@ -8,21 +8,40 @@ mask = {range(0, 51): 0,
         range(201, 301): 4,
         range(301, 1000): 5}
 
-token = '68b47eb3b1f697ab426e102486f11c68fb3dc5b1'
+
+class City:
+    def __init__(self, diz):
+        self.name = diz['city']
+        self.latitude = diz['latitude']
+        self.longitude = diz['longitude']
 
 
-with open('european_countries.json') as read_file:
-    all_cities = json.load(read_file)
+class Cities:
+    def __init__(self, list_of_cities):
+        self.cities = [city for country in list_of_cities for city in list_of_cities[country]]
+        self._index = -1
+
+    def __len__(self):
+        return len(self.cities)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self._index += 1
+        if self._index >= len(self.cities):
+            self._index = -1
+            raise StopIteration
+        else:
+            return City(self.cities[self._index])
+
+    def __getitem__(self, index):
+        if index <= len(self.cities):
+            return City(self.cities[index])
+        else:
+            raise IndexError
 
 
-for country in all_cities:
-    print(f'Currently: {country}')
-    for city in all_cities[country]:
-        curr_city = city['city']
-        curr_lat = city['latitude']
-        curr_lon = city['longitude']
-        try:
-            response = requests.get(f'https://api.waqi.info/geo:{curr_lat};{curr_lon}/?token={token}')
-            print(response.status)
-        except:
-            print(country, city, curr_lat, curr_lon)
+def create_request(city, token):
+    link = f"https://api.wagi.info/feed/geo{city['latitude']};{city['longitude']}/?token={token}"
+    return link
