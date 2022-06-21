@@ -1,6 +1,7 @@
 import redis
 import requests
 import json
+from index_generator import Cities, City, create_request
 
 with open('european_countries.json') as read_file1, open('secrets.json') as read_file2:
     list_of_cities = json.load(read_file1)
