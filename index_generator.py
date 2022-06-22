@@ -1,5 +1,4 @@
-import json
-import requests
+import redis
 
 mask = {range(0, 51): 0,
         range(51, 101): 1,
@@ -7,13 +6,6 @@ mask = {range(0, 51): 0,
         range(151, 201): 3,
         range(201, 301): 4,
         range(301, 1000): 5}
-
-
-class City:
-    def __init__(self, diz):
-        self.name = diz['city']
-        self.latitude = diz['latitude']
-        self.longitude = diz['longitude']
 
 
 class Cities:
@@ -33,15 +25,14 @@ class Cities:
             self._index = -1
             raise StopIteration
         else:
-            return City(self.cities[self._index])
+            return self.cities[self._index]
 
     def __getitem__(self, index):
         if index <= len(self.cities):
-            return City(self.cities[index])
+            return self.cities[index]
         else:
             raise IndexError
 
 
 def create_request(city, token):
-    link = f"https://api.wagi.info/feed/geo{city['latitude']};{city['longitude']}/?token={token}"
-    return link
+    return f"https://api.waqi.info/feed/geo:{city['latitude']};{city['longitude']}/?token={token}"
