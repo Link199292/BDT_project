@@ -23,8 +23,9 @@ class Listener:
         while True:
             message = self.pubsub_instance.get_message()
             if message:
+                print(message['data'])
                 self.batch.append(message['data'])
-                if len(self.batch) > self.batch_dim:
+                if len(self.batch) >= self.batch_dim:
                     self._send_requests()
             else:
                 time.sleep(0.001)
@@ -33,11 +34,11 @@ class Listener:
         rs = (grequests.get(i, timeout=10) for i in self.batch)
         res = grequests.map(rs, exception_handler=exception_handler)
         text = list(map(lambda d: d.text if d else None, res))
-        print(res)
         self.batch = []
 
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
     parser.add_argument('n', help='channel name')
     args = parser.parse_args()

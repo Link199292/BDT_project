@@ -11,7 +11,7 @@ with open('european_countries.json') as read_file1, open('secrets.json') as read
 
 if __name__ == "__main__":
     r = redis.Redis(host='localhost', port=6379, db=0)
-    r.flushall()
+    r.flushall()  # empties everything, remember to remove it, otherwise at each restart the db is flushed
     ps = r.pubsub()
 
     all_cities = Cities(list_of_cities)
