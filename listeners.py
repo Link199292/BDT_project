@@ -23,7 +23,6 @@ class Listener:
         while True:
             message = self.pubsub_instance.get_message()
             if message:
-                print(message['data'])
                 self.batch.append(message['data'])
                 if len(self.batch) >= self.batch_dim:
                     self._send_requests()
@@ -34,6 +33,13 @@ class Listener:
         rs = (grequests.get(i, timeout=10) for i in self.batch)
         res = grequests.map(rs, exception_handler=exception_handler)
         text = list(map(lambda d: d.text if d else None, res))
+
+        # TODO here the API response has to be taken, the values should be subsetted taking just the AQI value and the
+        # name/coords of the city so to make it possible to generate an ordered list. After that, the results should be
+        #represented in some way: website, dashboard, map, ...
+
+        # TODO also here, it should be checked whether a request has been failed to be retrieved, in that case it should
+        # be reinserted into the 'unsent_requests' queue
         self.batch = []
 
 
