@@ -16,6 +16,7 @@ with open('cities.json') as r:
             city_lon = city['longitude']
 
             to_add = {'city': city_name,
+                      'country': curr_country,
                       'latitude': round(float(city_lat), 1),
                       'longitude': round(float(city_lon), 1)}
 
@@ -32,16 +33,7 @@ for i in european_countries:
 for i in to_del:
     del european_countries[i]
 
-# Store the list of cities in a .json file in the following structure:
-
-#{Country : [
-#             {
-#              "city" : "Name_of_european_city",
-#              "latitude" : "latitude_of_european_city",
-#              "longitude" : longitude_of_european_city
-#             }
-#            ]
-#}
+# Store the list of cities in a .json file
 
 with open('european_countries.json', 'w') as w:
     json.dump(european_countries, w, indent=4)

@@ -1,9 +1,13 @@
 import redis
 import json
 import grequests
-from index_generator import Cities, create_request
+import time
+from index_generator import Cities
 
-N_BATCH = 100
+
+def create_request(city, token):
+    return f"https://api.waqi.info/feed/geo:{city['latitude']};{city['longitude']}/?token={token}"
+
 
 with open('european_countries.json') as read_file1, open('secrets.json') as read_file2:
     list_of_cities = json.load(read_file1)
@@ -16,9 +20,12 @@ if __name__ == "__main__":
 
     all_cities = Cities(list_of_cities)
 
+    city_counter = 0
     with r.pipeline() as pipe:
         for city in all_cities:
             curr_req = create_request(city, token)
-            pipe.lpush('unsent_requests', curr_req)
-        res = pipe.execute()
-    print(f'{len(res)} elements inserted into queue')
+            diz = {'city': city['city'], 'country': city['country'], 'link': curr_req}
+            pipe.lpush('unsent_requests', json.dumps(diz))
+            city_counter += 1
+        pipe.execute()
+        print(f'{city_counter} elements inserted into queue')
