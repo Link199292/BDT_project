@@ -1,6 +1,10 @@
+import random
+
+
 class Cities:
     def __init__(self, list_of_cities):
         self.cities = [city for country in list_of_cities for city in list_of_cities[country]]
+        random.shuffle(self.cities)
         self._index = -1
 
     def __len__(self):

@@ -1,6 +1,5 @@
 import redis
-import grequests
-from multiprocessing import Process
+import requests
 import argparse
 import json
 import time
@@ -25,19 +24,19 @@ class Message:
 
 
 class Listener:
-    def __init__(self, ch_n, batch_size=10):
+    def __init__(self, ch_n, batch_size=100):
         self.ch_number = ch_n
         self.redis_instance = redis.Redis(host='localhost', port=6379, db=0)
         self.pubsub_instance = self.redis_instance.pubsub(ignore_subscribe_messages=True)
         self.pubsub_instance.subscribe(f"{self.ch_number}")
         self.batch = []
         self.cities = []
-        self.responses = None
+        self.responses = []
         self.batch_size = batch_size  # in accordance with publisher N_BATCH variable
 
     def listen(self):
-        print(f"ch_{self.ch_number} is now listening")
-        while True:
+        print(f"{self.ch_number} is now listening")
+        while self.redis_instance.llen('unsent_requests') or self.pubsub_instance.get_message() is not None:
             message = self.pubsub_instance.get_message()
             if message:
                 current_message = Message(message)
@@ -50,21 +49,21 @@ class Listener:
                 time.sleep(0.001)
 
     def send_requests(self):
-        rs = (grequests.get(i.link, timeout=5) for i in self.batch)
-        res = grequests.imap(rs, exception_handler=exception_handler)
-        self.responses = list(map(lambda d: d.text if d else None, res))
-
-        print(self.responses)
-
-        for idx, r in enumerate(self.responses):
-            diz = {'city': self.cities[idx][0], 'country': self.cities[idx][1], 'link': self.cities[idx][-1]}
-            if r is not None:
-                curr_req = json.loads(r)
-                if curr_req['status'] == 'ok':
-                    self.redis_instance.zadd('leaderboard', {self.cities[idx][0]: int(curr_req['data']['aqi'])})
+        while self.batch:
+            current_city = self.batch.pop()
+            response = requests.get(current_city.link)
+            response_json = eval(response.text)
+            if response_json['status'] == 'ok':
+                curr_aqi = response_json['data']['aqi']
+                last_update = response_json['data']['debug']['sync']
+                to_insert = {'city': current_city.city,
+                             'country': current_city.country,
+                             'aqi': curr_aqi,
+                             'last_update': last_update}
+                self.redis_instance.lpush('for_mongo', json.dumps(to_insert))
             else:
-                self.redis_instance.lpush('unsent_requests', json.dumps(diz))
-                print(f'SENDING BACK: {self.cities[idx][0]}')
+                print(f'sending back {current_city.city}')
+                self.redis_instance.lpush('unsent_requests', json.loads(current_city))
 
 
 if __name__ == '__main__':
@@ -73,4 +72,9 @@ if __name__ == '__main__':
     parser.add_argument('n', help='channel name')
     args = parser.parse_args()
 
-    Listener(ch_n=args.n).listen()
+    listener = Listener(ch_n=args.n, batch_size=10)
+    while True:
+        if listener.redis_instance.llen('unsent_requests') > 0:
+            listener.listen()
+            break
+

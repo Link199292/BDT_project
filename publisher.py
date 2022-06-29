@@ -1,6 +1,12 @@
-# dequeue and publish to channels
 import redis
 import time
+import json
+
+with open('european_countries.json') as read_file:
+    list_of_cities = json.load(read_file)
+
+channel_names = [i for i in list_of_cities]
+
 
 N_BATCH = 100
 
@@ -11,24 +17,24 @@ def publish(batch, redis_instance, pubsub_instance):
     with redis_instance.pipeline() as pipe:
         while batch:
             m = batch.pop()
-            pipe.publish(f'{sent_counter}', m)
-            if sent_counter >= n_channels:
-                sent_counter = 0
-            else:
+            if m is not None:
+                curr_country = eval(m)['country']
+                pipe.publish(f'{curr_country}', m)
                 sent_counter += 1
-
         pipe.execute()
+        if sent_counter != 0:
+            print(f'Published {sent_counter}')
 
 
-def dequeue(n_channels):
+def dequeue():
     r = redis.Redis(host='localhost', port=6379, db=0)
     ps = r.pubsub(ignore_subscribe_messages=True)
     if ps.channels == {}:
-        for i in range(n_channels):
-            ps.subscribe(f'{i}')
+        for country in channel_names:
+            ps.subscribe(f'{country}')
 
     batch_counter = 0
-    while True:
+    while r.llen('unsent_requests') != 0:
         with r.pipeline() as pipe:
             while batch_counter < N_BATCH:
                 pipe.rpop('unsent_requests')
@@ -36,10 +42,14 @@ def dequeue(n_channels):
 
             batch = pipe.execute()
             publish(batch, r, ps)
-            print(f'Published {batch_counter}')
         batch_counter = 0
         time.sleep(10)
 
 
 if __name__ == "__main__":
-    dequeue(10)
+    redis_instance = redis.Redis(host='localhost', port=6379, db=0)
+    while True:
+        if redis_instance.llen('unsent_requests') > 0:
+            time.sleep(2)
+            dequeue()
+            break

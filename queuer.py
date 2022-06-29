@@ -1,7 +1,5 @@
 import redis
 import json
-import grequests
-import time
 from index_generator import Cities
 
 
@@ -19,6 +17,7 @@ if __name__ == "__main__":
     ps = r.pubsub()
 
     all_cities = Cities(list_of_cities)
+
 
     city_counter = 0
     with r.pipeline() as pipe:
