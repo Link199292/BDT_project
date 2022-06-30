@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Output Ranking</title>
+
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+
+  </head>
+  <body>
+
+    <div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="jumbotron">
+				<h2>
+					Ranking of European Cities based on Quality of Life:
+				</h2>
+				<p>
+					This table shows the ranking of European cities based on the quality of life offered. This here are the top 10 cities listed for your reference.
+				</p>
+        <div class="header">
+          <p>This is the ranking for the Quality of Life for European Cities.</p>
+      </div>
+      <table class="table">
+          <tr class="table__header">
+              {% for header in headings %}
+              <th class="table__cell"> {{ header }} </th>
+              {% endfor %}
+          </tr>
+          {%for row in data %}
+          <tr class="table__row">
+              {% for cell in row %}
+              <td class="table__cell">{{ cell }}</td>
+              {% endfor %}
+          </tr>
+          {% endfor %}
+      </table>
+				<p>
+					<a class="btn btn-primary btn-large" href="#">Learn more</a>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/scripts.js"></script>
+  </body>
+</html>
