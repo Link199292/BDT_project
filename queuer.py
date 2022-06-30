@@ -13,10 +13,10 @@ with open('european_countries.json') as read_file1, open('secrets.json') as read
 
 if __name__ == "__main__":
     r = redis.Redis(host='localhost', port=6379, db=0)
+    r.flushall()
     ps = r.pubsub()
 
     all_cities = Cities(list_of_cities)
-
 
     city_counter = 0
     with r.pipeline() as pipe:

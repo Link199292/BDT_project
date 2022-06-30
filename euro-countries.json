@@ -8,9 +8,6 @@
   "name": "Austria",
   "code": "AT"
 }, {
-  "name": "Åland Islands",
-  "code": "AX"
-}, {
   "name": "Bosnia and Herzegovina",
   "code": "BA"
 }, {
@@ -47,17 +44,11 @@
   "name": "Finland",
   "code": "FI"
 }, {
-  "name": "Faroe Islands",
-  "code": "FO"
-}, {
   "name": "France",
   "code": "FR"
 }, {
   "name": "United Kingdom",
   "code": "GB"
-}, {
-  "name": "Guernsey",
-  "code": "GG"
 }, {
   "name": "Greece",
   "code": "GR"
@@ -71,17 +62,8 @@
   "name": "Ireland",
   "code": "IE"
 }, {
-  "name": "Isle of Man",
-  "code": "IM"
-}, {
-  "name": "Iceland",
-  "code": "IC"
-}, {
   "name": "Italy",
   "code": "IT"
-}, {
-  "name": "Jersey",
-  "code": "JE"
 }, {
   "name": "Liechtenstein",
   "code": "LI"
@@ -131,18 +113,9 @@
   "name": "Slovenia",
   "code": "SI"
 }, {
-  "name": "Svalbard and Jan Mayen",
-  "code": "SJ"
-}, {
   "name": "Slovakia",
   "code": "SK"
 }, {
-  "name": "San Marino",
-  "code": "SM"
-}, {
   "name": "Ukraine",
   "code": "UA"
-}, {
-  "name": "Vatican City",
-  "code": "VA"
 }]

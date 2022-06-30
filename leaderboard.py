@@ -31,12 +31,13 @@ class MongoDB:
         self.populate_leaderboard(city)
 
     def populate_leaderboard(self, element):
-        print(f"Adding {element['city']} in sorted set: ({element['country']})")
-        self.redis_instance.zadd(f"{element['country']}", {element['city']: element['aqi']})
+        if element['aqi'] != '-':
+            self.redis_instance.zadd(f"{element['country']}", {element['city']: element['aqi']})
 
 
 if __name__ == '__main__':
     database = MongoDB()
+    time.sleep(10)
     while True:
         if database.redis_instance.llen('unsent_requests') > 0:
             database.listen()

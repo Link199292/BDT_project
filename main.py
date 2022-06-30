@@ -19,6 +19,7 @@ def start_system(channel_names):
     for name in channel_names:
         processes.append(f"python3.10 listeners.py '{name}'")
     processes.append('python3.10 publisher.py')
+    processes.append('python3.10 app.py')
 
     pool = multiprocessing.Pool(processes=len(processes))
     pool.map(run_process, processes)
