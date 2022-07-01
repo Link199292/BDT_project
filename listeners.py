@@ -77,4 +77,3 @@ if __name__ == '__main__':
         if listener.redis_instance.llen('unsent_requests') > 0:
             listener.listen()
             break
-
