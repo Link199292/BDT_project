@@ -4,13 +4,13 @@
 
 Various factors influence the quality of life of a city. Air Quality Index is one of those factors. The cleaner the air is the more livable the city is. For this project, however, we make us of only AQI (Air Quality Index) as the considering factor to decide quality of life of cities. The reason behind this being the key area of focus on the big data pipeline. 
 
+The image here shows the entire pipeline of the project.
 
-The whole process starts from a json file that was created by crossing the names of all the cities in the world with the list of all the European countries. For each city, the considered keys are the name, the country it belongs to, the latitude and the longitude. This data is passed through a URL schema according to the API provided by the website aqicn.org (https://api.waqi.info/feed/geo:latitude;longitude/?token). In this way, the data will be taken – in the further steps – in a geolocalized way: from the closest station to the given city’s coordinates.
-These URLs are handled by a publisher that sends these to as many channels as the number of countries. Here, some listeners manage to transform the URLs into proper requests, whose responses are stored into a document database: apart from the name of the city and country, the last update according to the station from which data was recorded and a timestamp of the moment in which that recording was actually made.
-From the database, the top cities (lowest to highest AQI) are queried and loaded in a web page for the consumption of information.
-A representation of the logical architecture of the system in all its stages can be viewed at the following link: https://github.com/Link199292/BDT_project/blob/main/BigDataProject_Pipeline.drawio.svg
-Technologies
-Data is temporarily stored into Redis queues. In the system two queues can be found: ‘unsent_requests’, the ones from the first JSON which store the URLs that will be dequeued for the publisher; ‘for_mongo’, the one from the listeners which stores the responses that will be dequeued for the permanent storage into a document database.
-The document store system deployed for this project is MongoDB. Choosing MongoBD made more sense because of the format of the responses we got from the API, that are json themselves. Also, because of the frequent updates required for each city and because of the flexibility offered by a NoSQL database. AQI values are expected to be integers, but in some cases missing values (recorded as ‘-’) are sent back. MongoDB allows handling these exceptions easily. In the perspective of further development, a NoSQL database is suggested, since it is easy to modify the structure of the data. Furthermore, a permanent storage allows a buffer for eventual system failures, by keeping the results always available.
-A Redis Publish/Subscribe messaging system is deployed for processing the upcoming data from the ‘unsent_requests’ queue. This allowed to make the process of sending requests faster: one publisher takes the URLs from the queue and sends them to multiple channels, from which the listeners are ready to subscribe and run the requests in a parallelised way. This allowed it to run multiple requests at the same time and in different client instances.
-In general, since aqicn.org does not allow for multiple requests at once (i.e. requesting a json document with multiple results), speed in the data ingestion is key. This was the reason behind the choice of Redis, that through its in-memory data structure allows fast processing.
+![BigDataProject_Pipeline (1)-1](https://user-images.githubusercontent.com/20270507/176953286-c5af4b7a-9c0d-453c-9d92-271a14e4b3e5.jpg)
+
+
+At first the names of all European cities are gathered. The cities information is handled using a URL schema. A publisher send these to several channels & we have listeners who manage to transform the URLs into proper requests, whose responses are stored into a document database. 
+
+We prefered to use NoSQL, because of the flexibility offered by a NoSQL database. AQI values are expected to be integers, but in some cases missing values (recorded as ‘-’) are sent back. MongoDB allows handling these exceptions easily. In the perspective of further development, a NoSQL database is suggested, since it is easy to modify the structure of the data. 
+
+From the database then, the data is queried and displayed on a webpage that refreshes every minute to ensure availability of most updated information to the potential viewer. 
